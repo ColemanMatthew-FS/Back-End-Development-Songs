@@ -69,7 +69,7 @@ def songs():
     # return {"songs": parse_json(results)}, 200
     return jsonify(dict(songs = parse_json(results))), 200
 
-@app.route("/song/<id>", methods=["GET"])
+@app.route("/song/<int:id>", methods=["GET"])
 def get_song_by_id(id):
     result = db.songs.find_one({"id": int(id)})
     if result:
@@ -83,7 +83,7 @@ def create_song():
         return jsonify(dict(Message="song with id {} already present".format(new_song["id"]))), 302
     db.songs.insert_one(new_song)
     result = db.songs.find_one({"id": new_song["id"]})
-    return jsonify({"inserted id":parse_json(result["_id"])})
+    return jsonify({"inserted id":parse_json(result["_id"])}), 201
 
 @app.route("/song/<int:id>", methods=["PUT"])
 def update_song(id):
