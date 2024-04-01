@@ -51,3 +51,55 @@ def parse_json(data):
 ######################################################################
 # INSERT CODE HERE
 ######################################################################
+
+@app.route("/health")
+def health():
+    return jsonify(dict(status="OK")), 200
+    # return{"status":"OK"}, 200
+    
+@app.route("/count")
+def count():
+    count = db.songs.count_documents({})
+    # return {"count": count}, 200
+    return jsonify(dict(count = count)), 200
+
+@app.route("/song", methods=["GET"])
+def songs():
+    results = list(db.songs.find({}))
+    # return {"songs": parse_json(results)}, 200
+    return jsonify(dict(songs = parse_json(results))), 200
+
+@app.route("/song/<id>", methods=["GET"])
+def get_song_by_id(id):
+    result = db.songs.find_one({"id": int(id)})
+    if result:
+        return jsonify(dict(song=parse_json(result))), 200
+    return jsonify(dict(message="song with id not found")), 404
+
+@app.route("/song", methods=["POST"])
+def create_song():
+    new_song = request.json
+    if db.songs.find_one({"id": new_song["id"]}):
+        return jsonify(dict(Message="song with id {} already present".format(new_song["id"]))), 302
+    db.songs.insert_one(new_song)
+    result = db.songs.find_one({"id": new_song["id"]})
+    return jsonify({"inserted id":parse_json(result["_id"])})
+
+@app.route("/song/<int:id>", methods=["PUT"])
+def update_song(id):
+    update = request.json
+    changes = {"$set":update}
+    if db.songs.find_one({"id":id}):
+        result = db.songs.update_one({"id":id}, changes)
+        if result.modified_count == 0:
+            return jsonify(dict(message="song found, but nothing updated")), 200
+        updated_song = db.songs.find_one({"id":id})
+        return parse_json(updated_song), 201
+    return jsonify(dict(message="song not found"))
+
+@app.route("/song/<int:id>", methods=["DELETE"])
+def delete_song(id):
+    result = db.songs.delete_one({"id":id})
+    if result.deleted_count == 0:
+        return jsonify(dict(message="song not found")), 404
+    return {}, 204
