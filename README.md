@@ -40,8 +40,11 @@ spec:
 9. It should be deployed! Test the application's health using
 
 ```
-curl -X GET http://songs-sn-labs-captainfedo1.labs-prod-openshift-san-a45631dc5778dc6371c67d206ba9ae5c-0000.us-east.containers.appdomain.cloud/health
+curl -X GET {your application's URL here}
 {
   "status": "OK"
 }
 ```
+
+### Note:
+Make sure `MONGODB_SERVICE`, `MONGODB_USERNAME`, `MONGODB_PASSWORD`, and `MONGODB_PORT` are set as environment variables.
